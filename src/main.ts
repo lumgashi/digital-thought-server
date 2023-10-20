@@ -17,7 +17,7 @@ async function bootstrap() {
   //useful in scenarios where you need to perform cleanup or execute specific actions when your NestJS application is shutting down, such as releasing resources, closing connections, or saving state.
   app.enableShutdownHooks();
 
-  // setting a global prefix for all routes in your application
+  // setting a global prefix for all routes in the application
   app.setGlobalPrefix(
     serviceConfig.getOrThrow('app.apiPrefix', { infer: true }),
     { exclude: ['/'] },
