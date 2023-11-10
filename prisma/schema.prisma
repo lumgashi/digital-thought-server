@@ -10,12 +10,26 @@ datasource db {
   url      = env("db.url")
 }
 
+model User {
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  email              String    @unique
+  firstName          String?
+  lastName           String?
+  handle             String    @unique
+  birthday           DateTime?
+  gender             String?
+  phone              String?
+  role               String
+  password           String?
+  passwordResetToken String?
+  avatar             String?
+  isActive           Boolean   @default(true)   
 
-model AutoId {
-  id         String @id @default(auto()) @map("_id") @db.ObjectId
-  autoId     Int
-  userAutoId Int
-  bidAutoId  Int    @default(0)
+  lastLoginAt DateTime?
+  referalcode String   @unique
 
-  @@map(name: "autoIds")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map(name: "users")
 }

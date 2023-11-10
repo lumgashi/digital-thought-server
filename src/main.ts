@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { useContainer } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
-import { AllConfigTypes } from 'types/config.types';
+import { AllConfigTypes } from 'src/utils/types/config.types';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import validationOptions from './utils/validation.options';
 
