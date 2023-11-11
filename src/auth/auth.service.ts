@@ -14,10 +14,16 @@ import {
 import { ICustomResponse } from 'src/utils/interfaces';
 import { RegisterDto } from './dto';
 import referalCode from 'src/utils/functions/referalCodeGenerator';
+import { EmailService } from 'src/utils/services/email/email.service';
+import { newJoinedUser } from 'src/utils/functions/email/emailTypes';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   async login(email: string, password: string): Promise<ICustomResponse> {
     const user = await this.prisma.user.findUnique({ where: { email } });
@@ -95,7 +101,7 @@ export class AuthService {
 
       const randomGeneratedReferalCode = referalCode.generate(referalConfig);
       const hashedPassword = await hashPassword(password);
-      const user = await this.prisma.user.create({
+      const user: User = await this.prisma.user.create({
         data: {
           email,
           password: hashedPassword,
@@ -104,6 +110,15 @@ export class AuthService {
           role: `USER`,
         },
       });
+
+      const welcomeEmail = {
+        to: email,
+        subject: 'Welcome to Digital Thought! 🌟',
+        body: newJoinedUser(randomGeneratedHandler),
+      };
+
+      this.emailService.send(welcomeEmail);
+
       return customResponse({
         success: true,
         status: HttpStatus.OK,
