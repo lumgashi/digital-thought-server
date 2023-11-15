@@ -14,10 +14,16 @@ import {
 import { ICustomResponse } from 'src/utils/interfaces';
 import { RegisterDto } from './dto';
 import referalCode from 'src/utils/functions/referalCodeGenerator';
+import { EmailService } from 'src/utils/services/email/email.service';
+import { User } from '@prisma/client';
+import { emailTemplateConfig } from 'src/utils/functions/email';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   async login(email: string, password: string): Promise<ICustomResponse> {
     const user = await this.prisma.user.findUnique({ where: { email } });
@@ -64,6 +70,9 @@ export class AuthService {
       },
     });
 
+    //TODO : impletement npm deep-email-validator
+    //https://soshace.com/verifying-an-email-address-without-sending-an-email-in-nodejs/?ref=dailydev
+
     if (emailExists) {
       throw new BadRequestException(
         customResponse({
@@ -95,7 +104,7 @@ export class AuthService {
 
       const randomGeneratedReferalCode = referalCode.generate(referalConfig);
       const hashedPassword = await hashPassword(password);
-      const user = await this.prisma.user.create({
+      const user: User = await this.prisma.user.create({
         data: {
           email,
           password: hashedPassword,
@@ -104,6 +113,14 @@ export class AuthService {
           role: `USER`,
         },
       });
+
+      const welcomeEmail = {
+        to: email,
+        templateId: emailTemplateConfig.WELCOME_USER,
+      };
+
+      this.emailService.send(welcomeEmail);
+
       return customResponse({
         success: true,
         status: HttpStatus.OK,
