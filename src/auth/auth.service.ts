@@ -15,8 +15,8 @@ import { ICustomResponse } from 'src/utils/interfaces';
 import { RegisterDto } from './dto';
 import referalCode from 'src/utils/functions/referalCodeGenerator';
 import { EmailService } from 'src/utils/services/email/email.service';
-import { newJoinedUser } from 'src/utils/functions/email/emailTypes';
 import { User } from '@prisma/client';
+import { emailTemplateConfig } from 'src/utils/functions/email';
 
 @Injectable()
 export class AuthService {
@@ -70,6 +70,9 @@ export class AuthService {
       },
     });
 
+    //TODO : impletement npm deep-email-validator
+    //https://soshace.com/verifying-an-email-address-without-sending-an-email-in-nodejs/?ref=dailydev
+
     if (emailExists) {
       throw new BadRequestException(
         customResponse({
@@ -113,8 +116,7 @@ export class AuthService {
 
       const welcomeEmail = {
         to: email,
-        subject: 'Welcome to Digital Thought! 🌟',
-        body: newJoinedUser(randomGeneratedHandler),
+        templateId: emailTemplateConfig.WELCOME_USER,
       };
 
       this.emailService.send(welcomeEmail);
