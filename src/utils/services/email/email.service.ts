@@ -29,7 +29,6 @@ export class EmailService {
       defaultClient.defaultHeaders['Accept'] = 'application/json';
 
       const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-      console.log('apiInstance', apiInstance);
 
       let sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail(); // SendSmtpEmail | Values to send a transactional email
 
@@ -51,10 +50,7 @@ export class EmailService {
         },
       };
 
-      console.log('sendSmtpEmail', sendSmtpEmail);
-
-      const msg = await apiInstance.sendTransacEmail(sendSmtpEmail);
-      console.log(msg);
+      await apiInstance.sendTransacEmail(sendSmtpEmail);
       // const resend = new Resend('re_WW9Lpqom_3znCPn7dmtqYz2M5uDJxisNG');
       // const ema = await resend.emails.send({
       //   from: 'onboarding@resend.dev',
@@ -64,7 +60,6 @@ export class EmailService {
       // });
       // console.log(ema);
     } catch (err) {
-      console.log(err);
       throw new BadRequestException(
         customResponse({
           errors: 'Email sending failed',
