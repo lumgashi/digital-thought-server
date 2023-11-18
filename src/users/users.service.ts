@@ -44,8 +44,47 @@ export class UsersService {
     }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new BadRequestException(
+        customResponse({
+          status: HttpStatus.BAD_REQUEST,
+          success: false,
+          errors: 'Could not find user with given id!',
+        }),
+      );
+    }
+    try {
+      const updatePayload = {
+        ...updateUserDto,
+      };
+
+      await this.prisma.user.update({
+        where: { id },
+        data: {
+          ...updatePayload,
+        },
+      });
+
+      return customResponse({
+        success: true,
+        status: HttpStatus.OK,
+        data: 'User has been updated successfully!',
+      });
+    } catch (error) {
+      throw new BadRequestException(
+        customResponse({
+          status: HttpStatus.BAD_REQUEST,
+          success: false,
+          errors: 'Could not update user with given id!',
+        }),
+      );
+    }
   }
 
   async remove(id: string) {
