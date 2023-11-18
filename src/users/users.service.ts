@@ -1,7 +1,14 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { User } from '@prisma/client';
+import { prismaExclude, customResponse } from 'src/utils/functions';
 
 @Injectable()
 export class UsersService {
@@ -16,10 +23,24 @@ export class UsersService {
 
   async findOne(id: string) {
     try {
-      const user = await this.prisma.user.findUnique({ where: { id } });
-      return user;
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+        select: prismaExclude('User', ['password', 'passwordResetToken']),
+      });
+
+      return customResponse({
+        success: true,
+        status: HttpStatus.OK,
+        data: user,
+      });
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new BadRequestException(
+        customResponse({
+          status: HttpStatus.BAD_REQUEST,
+          success: false,
+          errors: 'Could not find user with given id!',
+        }),
+      );
     }
   }
 
