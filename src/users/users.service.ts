@@ -4,21 +4,65 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { prismaExclude, customResponse } from 'src/utils/functions';
+import { GetUsersDto, CreateUserDto, UpdateUserDto } from './dto';
+import { PaginationService } from 'src/pagination/pagination.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly paginate: PaginationService,
+  ) {}
   create(createUserDto: CreateUserDto) {
     return 'This action adds a new user';
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(getUsers: GetUsersDto) {
+    try {
+      const { isActive, pagination, page, limit, email, role } = getUsers;
+
+      const query = {
+        email,
+        role,
+      };
+
+      const users = await this.paginate.paginator<
+        User,
+        Prisma.UserWhereInput,
+        Prisma.UserSelect,
+        Prisma.UserInclude,
+        | Prisma.UserOrderByWithRelationInput
+        | Prisma.UserOrderByWithRelationInput[]
+      >({
+        paginate: { pagination, page, limit },
+        model: this.prisma.user,
+        condition: {
+          where: {
+            isActive,
+            ...query,
+          },
+        },
+        orderBy: [{ createdAt: 'asc' }],
+      });
+
+      return customResponse({
+        success: true,
+        status: HttpStatus.CREATED,
+        data: users,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        customResponse({
+          success: false,
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          errors: 'Could not get all users!',
+        }),
+      );
+    }
   }
 
   async findOne(id: string) {
