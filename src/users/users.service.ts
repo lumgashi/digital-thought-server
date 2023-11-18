@@ -48,7 +48,28 @@ export class UsersService {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    try {
+      await this.prisma.user.update({
+        where: { id },
+        data: {
+          isActive: false,
+        },
+      });
+
+      return customResponse({
+        success: true,
+        status: HttpStatus.OK,
+        data: 'User deleted successfully!',
+      });
+    } catch (error) {
+      throw new BadRequestException(
+        customResponse({
+          status: HttpStatus.BAD_REQUEST,
+          success: false,
+          errors: 'Could not delete user with given id!',
+        }),
+      );
+    }
   }
 }
