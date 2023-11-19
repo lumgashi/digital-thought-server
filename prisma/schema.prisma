@@ -24,7 +24,6 @@ model User {
   passwordResetToken   String?
   avatar               String?
   isActive             Boolean   @default(true)
-  dummy                Dummy?
   posts                Post[]    @relation(name: "authorPosts")
   // collaboratingPosts Post[]     @db.ObjectId 
   collaboratorsPostIds String[]  @db.ObjectId
@@ -54,14 +53,3 @@ model Post {
   @@map(name: "posts")
 }
 
-model Dummy {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
-  name      String?
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String   @unique @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map(name: "dummy")
-}
