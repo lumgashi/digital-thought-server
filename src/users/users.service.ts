@@ -51,7 +51,7 @@ export class UsersService {
 
       return customResponse({
         success: true,
-        status: HttpStatus.CREATED,
+        status: HttpStatus.OK,
         data: users,
       });
     } catch (error) {
