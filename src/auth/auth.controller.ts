@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Req, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ICustomResponse } from 'src/utils/interfaces';
 import { LoginDto, RegisterDto } from './dto';
@@ -27,5 +27,25 @@ export class AuthController {
   @Post('register')
   async register(@Body() registerDto: RegisterDto): Promise<ICustomResponse> {
     return this.authService.register(registerDto);
+  }
+
+  /**
+   * Verifies a user's email address by the registration of a user.
+   * @returns A promise that resolves to an `ICustomResponse` object.
+   *
+   */
+  @Get('verify')
+  async verify(@Req() req): Promise<ICustomResponse> {
+    return this.authService.verify(req);
+  }
+
+  /**
+   * Resends the verification email.
+   * @returns A promise that resolves to an `ICustomResponse` object.
+   *
+   */
+  @Post('resend-email-verification')
+  async resendEmailVerification(userId: string): Promise<ICustomResponse> {
+    return this.authService.resendEmailVerification(userId);
   }
 }

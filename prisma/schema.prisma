@@ -23,7 +23,7 @@ model User {
   password           String?
   passwordResetToken String?
   avatar             String?
-  isActive           Boolean   @default(true)
+  isActive           Boolean   @default(false)
   dummy Dummy? 
 
   lastLoginAt DateTime?
